@@ -22,7 +22,8 @@
 - 基本都能无损不断扣拆解
 
 ### **failsafe模式下开启telnet**
-- 使用usb转ttl工具+杜邦线接线：路由RXD连接ttl工具的TXD、TXD连接RXD、GND连接GND。
+- 使用usb转ttl工具+杜邦线接线：路由RXD连接ttl工具的TXD、TXD连接RXD、GND连接GND.底座朝下，主板由下方三个节点自下而上依次为RXD、TXD、GND。  
+注意观察路由主板，三个圆孔一个方孔，三个圆孔没有走线的孔（与方孔相临）为GND,紧挨着GND有走线的一个圆孔为TXD,另外一个圆孔则是RXD。
 - 打开串口调试助手,串口号选择插入 COM 口设备，波特率选择到 115200，然后选择连接。
 - 路由器接通电源，调试助手右侧开始日志开始显示，不停的输入 f+回车 发送，直至显示进入failsafe模式。
 - 依次执行以下命令  
@@ -70,7 +71,24 @@ mtd write 360t7-fip-fixed-parts.bin fip
  - 刷入完成后，自动重启进入openwrt  
  默认后台是192.168.6.1，用户名是 root，密码 password，默认的 Wi-Fi 名是 mtk 开头的，默认 Wi-Fi 没有密码   
  
-### 最后附上360t7的 [ 原生固件备份 ](https://github.com/fqw000/360T7/releases/download/openwrt/360T7-yuanshengrom-bak.7z) 
+### 最后附上360t7的 [ 原生固件备份 ](https://github.com/fqw000/360T7/releases/download/openwrt/360T7-yuanshengrom-bak.7z)   
+### 原厂固件分区表  
+```
+0x000000000000-0x000000100000 : "bl2"
+0x000000100000-0x000000180000 : "u-boot-env"
+0x000000180000-0x000000380000 : "Factory"
+0x000000380000-0x000000580000 : "fip"
+0x000000580000-0x000002980000 : "ubi"
+0x000002980000-0x000004d80000 : "firmware-1"
+0x000004d80000-0x000007180000 : "plugin"
+0x000007180000-0x000007280000 : "config"
+0x000007280000-0x000007300000 : "factory"
+0x000007300000-0x000007a00000 : "log"
+```
+>  其中，Factory为无线EEPROM分区；fip为uboot分区；ubi和firmware-1为固件分区，分别36M，均为ubi格式；plugin为原厂插件分区，有36M，也是ubi格式；最后一个小写字母开头的factory分区为原厂固件信息分区，保存有机器编号，MAC地址等信息。
+> 原厂uboot在开机时会分别检查ubi和firmware-1分区内是否存在固件，如果某个分区未检查通过，则uboot会自动将另一个分区的内容复制过去。
+>  因此，当使用原厂uboot启动时，只能使用一个ubi分区存放固件，固件总体积（含kernel+rootfs+rootfs_data）将限制在36M内，但你仍然可以使用plugin分区（36M）存放其它数据  
+ [ >>>>来源 ](https://cmi.hanwckf.top/p/360t7-telnet-uboot-console/)    
  
  
  
